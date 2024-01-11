@@ -77,6 +77,7 @@ jobs:
       with:
         repository: rhrlima/app-manifests
         ref: main
+        token: ${{ secrets.ARGOCD_DEPLOY_TOKEN }}
 
     - name: Get Deploy Tag
       uses: actions/download-artifact@v2
