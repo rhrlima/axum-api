@@ -89,7 +89,7 @@ jobs:
       run: |
         pwd
         ls
-        sed -i "" "s|newTag:.*|newTag: $(cat deploys/${{ github.run_id }}/deploy_tag)|" dev/axum-api/kustomization.yaml
+        sed -i "s|newTag:.*|newTag: $(cat deploys/${{ github.run_id }}/deploy_tag)|" dev/axum-api/kustomization.yaml
 
     - name: Commit and push changes
       run: |
