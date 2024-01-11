@@ -34,16 +34,23 @@ jobs:
         path: deploys/${{ github.run_id }}/deploy_tag
         retention-days: 7
 
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Build Docker image
-      uses: docker/build-push-action@v2
+      uses: docker/build-push-action@v5
       with:
         context: .
         file: ./Dockerfile
         platforms: linux/amd64
         push: true
-        registry: ghcr.io
-        repository: rhrlima/axum-api
-        tag_with_ref: $(cat deploys/${{ github.run_id }}/deploy_tag)
+        tags: |
+          ghcr.io/rhrlima/axum-api:latest
+          ghcr.io/rhrlima/axum-api:$(cat deploys/${{ github.run_id }}/deploy_tag)
 
   update_argocd_manifest:
     needs: build_and_publish
