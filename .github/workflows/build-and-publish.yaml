@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build_and_publish:
+  build_and_test:
     runs-on: ubuntu-latest
 
     steps:
@@ -21,18 +21,14 @@ jobs:
     - name: Build Rust application
       run: cargo build --release
 
-    - name: Create Deploy Tag
-      run: |
-        LAST_COMMIT_DT=$(git log -1 --format="%at" | xargs -I{} date -d @{} +%Y.%m.%d-%H.%M.%S)
-        mkdir -p deploys/${{ github.run_id }}
-        echo $LAST_COMMIT_DT > deploys/${{ github.run_id }}/deploy_tag
+    - name: Test Rust application
+      run: cargo test --release
 
-    - name: Upload Deploy Tag
-      uses: actions/upload-artifact@v2
-      with:
-        name: deploy_tag
-        path: deploys/${{ github.run_id }}/deploy_tag
-        retention-days: 7
+  docker_build_and_publish:
+    runs-on: ubuntu-latest
+
+    - name: Build Docker Image
+      run: docker build -t docker_image .
 
     - name: Login to GitHub Container Registry
       uses: docker/login-action@v3
@@ -41,19 +37,31 @@ jobs:
         username: ${{ github.repository_owner }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Build Docker image
-      uses: docker/build-push-action@v5
+    - name: Build and Push Docker image
+      # runs only in main
+      if: github.ref == 'refs/heads/main'
+      run: |
+        DEPLOYMENT_TAG=$(git log -1 --format="%at" | xargs -I{} date -d @{} +%Y.%m.%d-%H.%M.%S)
+        IMAGE_NAME="${{ vars.REGISTRY_DOMAIN }}/${{ vars.REGISTRY_NAME }}"
+
+        docker tag docker_image:latest ${IMAGE_NAME}:latest
+        docker tag docker_image:latest ${IMAGE_NAME}:${DEPLOYMENT_TAG}
+
+        docker push ${IMAGE_NAME}:latest
+        docker push ${IMAGE_NAME}:${DEPLOYMENT_TAG}
+
+        mkdir -p deploys/${{ github.run_id }}
+        echo $DEPLOYMENT_TAG > deploys/${{ github.run_id }}/deploy_tag
+
+    - name: Upload Deploy Tag
+      uses: actions/upload-artifact@v2
       with:
-        context: .
-        file: ./Dockerfile
-        platforms: linux/amd64
-        push: true
-        tags: |
-          ghcr.io/rhrlima/axum-api:latest
-          ghcr.io/rhrlima/axum-api:$(cat deploys/${{ github.run_id }}/deploy_tag)
+        name: deploy_tag
+        path: deploys/${{ github.run_id }}/deploy_tag
+        retention-days: 7
 
   update_argocd_manifest:
-    needs: build_and_publish
+    needs: docker_build_and_publish
     runs-on: ubuntu-latest
 
     steps:
