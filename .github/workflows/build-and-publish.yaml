@@ -27,6 +27,7 @@ jobs:
   docker_build_and_publish:
     runs-on: ubuntu-latest
 
+    steps:
     - name: Build Docker Image
       run: docker build -t docker_image .
 
