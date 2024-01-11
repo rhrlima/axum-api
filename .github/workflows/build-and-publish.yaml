@@ -24,6 +24,7 @@ jobs:
     - name: Create Deploy Tag
       run: |
         LAST_COMMIT_DT=$(git log -1 --format="%at" | xargs -I{} date -d @{} +%Y.%m.%d-%H.%M.%S)
+        mkdir -p deploys/${{ github.run_id }}
         echo $LAST_COMMIT_DT > deploys/${{ github.run_id }}/deploy_tag
 
     - name: Upload Deploy Tag
