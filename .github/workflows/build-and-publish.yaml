@@ -1,17 +1,18 @@
-name: Rust Build and Docker Publish
+name: Continuous Integration
 
-on:
-  push:
-    branches:
-      - main
+on: push
 
 jobs:
   build_and_test:
+    name: Build & Test
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
+
+    - name: Lint
+      run: echo "Linting code"
 
     - name: Setup Rust
       uses: ATiltedTree/setup-rust@v1
@@ -21,10 +22,17 @@ jobs:
     - name: Build Rust application
       run: cargo build --release
 
-    - name: Test Rust application
+    - name: Light Tests
+      # always run
+      run: cargo test --release
+
+    - name: Heavy Tests
+      # run on PRs
+      if: github.event_name == 'pull_request'
       run: cargo test --release
 
   docker_build_and_publish:
+    name: Docker Build & Publish
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -32,36 +40,49 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Build Docker Image
       run: docker build -t docker_image .
 
     - name: Login to GitHub Container Registry
+      # runs only in main
+      if: github.ref == 'refs/heads/main'
       uses: docker/login-action@v3
       with:
         registry: ghcr.io
         username: ${{ github.repository_owner }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Build and Push Docker image
+    - name: Create Deploy Tag
       # runs only in main
       if: github.ref == 'refs/heads/main'
       run: |
-        DEPLOYMENT_TAG=$(git log -1 --format="%at" | xargs -I{} date -d @{} +%Y.%m.%d-%H.%M.%S)
+        DEPLOY_TAG=$(git log -1 --format="%at" | xargs -I{} date -d @{} +%Y.%m.%d-%H.%M.%S)
+
+        mkdir -p deploys/${{ github.run_id }}
+        echo $DEPLOY_TAG > deploys/${{ github.run_id }}/deploy_tag
+
+        git tag v${DEPLOY_TAG}
+        git push --tags
+
+    - name: Build & Push Docker image
+      # runs only in main
+      if: github.ref == 'refs/heads/main'
+      run: |
+        DEPLOY_TAG=$(cat deploys/${{ github.run_id }}/deploy_tag)
         IMAGE_NAME="${{ vars.REGISTRY_DOMAIN }}/${{ vars.REGISTRY_NAME }}"
 
         docker tag docker_image:latest ${IMAGE_NAME}:latest
-        docker tag docker_image:latest ${IMAGE_NAME}:${DEPLOYMENT_TAG}
+        docker tag docker_image:latest ${IMAGE_NAME}:${DEPLOY_TAG}
 
         docker push ${IMAGE_NAME}:latest
-        docker push ${IMAGE_NAME}:${DEPLOYMENT_TAG}
-
-        mkdir -p deploys/${{ github.run_id }}
-        echo $DEPLOYMENT_TAG > deploys/${{ github.run_id }}/deploy_tag
+        docker push ${IMAGE_NAME}:${DEPLOY_TAG}
 
     - name: Upload Deploy Tag
-      uses: actions/upload-artifact@v2
+      # runs only in main
+      if: github.ref == 'refs/heads/main'
+      uses: actions/upload-artifact@v4
       with:
         name: deploy_tag
         path: deploys/${{ github.run_id }}/deploy_tag
@@ -71,28 +92,30 @@ jobs:
     needs: docker_build_and_publish
     runs-on: ubuntu-latest
 
+    # run all steps in this job only in main
+    if: github.ref == 'refs/heads/main'
+
     steps:
     - name: Checkout app-manifests repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         repository: rhrlima/app-manifests
         ref: main
+        # github personal token with access to repositories
         token: ${{ secrets.ARGOCD_DEPLOY_TOKEN }}
 
     - name: Get Deploy Tag
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v4
       with:
-        name: deploy_tag
         path: deploys/${{ github.run_id }}
 
     - name: Update image tag in app-manifests
       run: |
-        pwd
-        ls
         sed -i "s|newTag:.*|newTag: $(cat deploys/${{ github.run_id }}/deploy_tag)|" dev/axum-api/kustomization.yaml
 
     - name: Commit and push changes
       run: |
+        rm -r deploys
         git config user.name "GitHub Actions"
         git config user.email "actions@github.com"
         git add .
