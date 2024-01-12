@@ -1,6 +1,6 @@
 name: Continuous Integration
 
-on: push
+on: [push, pull_request]
 
 jobs:
   build_and_test:
@@ -107,6 +107,7 @@ jobs:
     - name: Get Deploy Tag
       uses: actions/download-artifact@v4
       with:
+        name: deploy_tag
         path: deploys/${{ github.run_id }}
 
     - name: Update image tag in app-manifests
