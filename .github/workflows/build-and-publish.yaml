@@ -27,8 +27,8 @@ jobs:
       run: cargo test --release
 
     - name: Heavy Tests
-      # run on PRs
-      if: github.event_name == 'pull_request'
+      # run on PRs and main
+      if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
       run: cargo test --release
 
   docker_build_and_publish:
