@@ -23,12 +23,24 @@ jobs:
       run: cargo build --release
 
     - name: Light Tests
-      # always run
       run: cargo test --release
 
+  heavy_tests:
+    name: Heavy Tests
+    runs-on: ubuntu-latest
+
+    # run on PRs and main
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Rust
+      uses: ATiltedTree/setup-rust@v1
+      with:
+        rust-version: "1.70.0"
     - name: Heavy Tests
-      # run on PRs and main
-      if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
       run: cargo test --release
 
   docker_build_and_publish:
@@ -58,12 +70,12 @@ jobs:
       # runs only in main
       if: github.ref == 'refs/heads/main'
       run: |
-        DEPLOY_TAG=$(git log -1 --format="%at" | xargs -I{} date -d @{} +%Y.%m.%d-%H.%M.%S)
+        DEPLOY_TAG=v$(git log -1 --format="%at" | xargs -I{} date -d @{} +%Y.%m.%d-%H.%M.%S)
 
         mkdir -p deploys/${{ github.run_id }}
         echo $DEPLOY_TAG > deploys/${{ github.run_id }}/deploy_tag
 
-        git tag v${DEPLOY_TAG}
+        git tag ${DEPLOY_TAG}
         git push --tags
 
     - name: Build & Push Docker image
@@ -88,7 +100,7 @@ jobs:
         path: deploys/${{ github.run_id }}/deploy_tag
         retention-days: 7
 
-  update_argocd_manifest:
+  trigger_deploy:
     needs: docker_build_and_publish
     runs-on: ubuntu-latest
 
@@ -96,29 +108,26 @@ jobs:
     if: github.ref == 'refs/heads/main'
 
     steps:
-    - name: Checkout app-manifests repository
-      uses: actions/checkout@v4
-      with:
-        repository: rhrlima/app-manifests
-        ref: main
-        # github personal token with access to repositories
-        token: ${{ secrets.ARGOCD_DEPLOY_TOKEN }}
-
     - name: Get Deploy Tag
       uses: actions/download-artifact@v4
       with:
         name: deploy_tag
         path: deploys/${{ github.run_id }}
 
-    - name: Update image tag in app-manifests
+    - name: Trigger Deploy
       run: |
-        sed -i "s|newTag:.*|newTag: $(cat deploys/${{ github.run_id }}/deploy_tag)|" dev/axum-api/kustomization.yaml
+        userName=rhrlima
+        repoName=app-manifests
 
-    - name: Commit and push changes
-      run: |
-        rm -r deploys
-        git config user.name "GitHub Actions"
-        git config user.email "actions@github.com"
-        git add .
-        git commit -m "Update image tag to $(cat deploys/${{ github.run_id }}/deploy_tag)"
-        git push
+        IMAGE_TAG=$(cat deploys/${{ github.run_id }}/deploy_tag)
+        MANIFEST_PATH=dev/axum-api/deployment.yml
+
+        curl -X POST https://api.github.com/repos/$userName/$repoName/dispatches \
+        -H 'Accept: application/vnd.github.everest-preview+json' \
+        -u ${{ secrets.ACTIONS_KEY }} \
+        --data '{
+          "event_type": "Automated Deploy",
+          "client_payload": {
+            "image_tag": "'"$IMAGE_TAG"'",
+            "manifest_path": "'"$MANIFEST_PATH"'"
+          }}'
