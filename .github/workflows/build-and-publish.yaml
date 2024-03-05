@@ -107,6 +107,7 @@ jobs:
         retention-days: 7
 
   trigger_deploy:
+    name: Trigger Deploy
     needs: docker_build_and_publish
     runs-on: ubuntu-latest
 
@@ -117,7 +118,7 @@ jobs:
       USER_NAME: rhrlima
       REPO_NAME: app-manifests
       IMAGE_NAME: ghcr.io/rhrlima/axum-api
-      MANIFEST_PATH: dev/axum-api/deployment.yml
+      MANIFEST_PATH: dev/axum-api/deployment.yaml
 
     steps:
     - name: Get Deploy Tag
