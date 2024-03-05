@@ -9,7 +9,7 @@ use axum::{
 async fn main() -> Result<(), Box<dyn Error>> {
     let addr = SocketAddr::from(([0, 0, 0, 0], 8000));
 
-    let version = 2.0;
+    let version = 3.0;
 	let app = Router::new().route("/", get(move || hello(version)));
 
     println!("listening on {}", addr);
