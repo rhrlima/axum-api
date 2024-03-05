@@ -1,11 +1,12 @@
-name: Continuous Integration
-
-on: [push, pull_request]
+name: Build & Publish
 
 jobs:
   build_and_test:
     name: Build & Test
     runs-on: ubuntu-latest
+
+    # run on PUSH and MAIN
+    if: github.event_name == 'push' || github.ref == 'refs/heads/main'
 
     steps:
     - name: Checkout repository
@@ -29,7 +30,7 @@ jobs:
     name: Heavy Tests
     runs-on: ubuntu-latest
 
-    # run on PRs and main
+    # run on PRs and MAIN
     if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
 
     steps:
@@ -49,6 +50,9 @@ jobs:
     permissions:
       contents: write
       packages: write
+
+    # run on PUSH and MAIN
+    if: github.event_name == 'push' || github.ref == 'refs/heads/main'
 
     steps:
     - name: Checkout repository
@@ -104,8 +108,14 @@ jobs:
     needs: docker_build_and_publish
     runs-on: ubuntu-latest
 
-    # run all steps in this job only in main
+    # run on MAIN
     if: github.ref == 'refs/heads/main'
+
+    env:
+      USER_NAME: rhrlima
+      REPO_NAME: app-manifests
+      IMAGE_NAME: ghcr.io/rhrlima/axum-api
+      MANIFEST_PATH: dev/axum-api/deployment.yml
 
     steps:
     - name: Get Deploy Tag
@@ -116,18 +126,15 @@ jobs:
 
     - name: Trigger Deploy
       run: |
-        userName=rhrlima
-        repoName=app-manifests
-
         IMAGE_TAG=$(cat deploys/${{ github.run_id }}/deploy_tag)
-        MANIFEST_PATH=dev/axum-api/deployment.yml
 
-        curl -X POST https://api.github.com/repos/$userName/$repoName/dispatches \
+        curl -X POST https://api.github.com/repos/${USER_NAME}/${REPO_NAME}/dispatches \
         -H 'Accept: application/vnd.github.everest-preview+json' \
         -u ${{ secrets.ACTIONS_KEY }} \
         --data '{
           "event_type": "Automated Deploy",
           "client_payload": {
             "image_tag": "'"$IMAGE_TAG"'",
+            "image_name": "'"$IMAGE_NAME"'",
             "manifest_path": "'"$MANIFEST_PATH"'"
           }}'
