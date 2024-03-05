@@ -1,5 +1,7 @@
 name: Build & Publish
 
+on: [push, pull_request]
+
 jobs:
   build_and_test:
     name: Build & Test
