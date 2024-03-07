@@ -107,6 +107,9 @@ jobs:
       MANIFEST_PATH: dev/axum-api/deployment.yaml
 
     steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
     - name: Trigger Deploy
       run: |
         IMAGE_NAME="${{ vars.REGISTRY_DOMAIN }}/${{ vars.REGISTRY_NAME }}"
