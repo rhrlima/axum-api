@@ -1,0 +1,37 @@
+name: Build & Publish
+
+on:
+  workflow_dispatch: # manual trigger
+
+jobs:
+  stage_deploy:
+    name: Stage Deploy
+    needs: docker_build_and_publish
+    runs-on: ubuntu-latest
+
+    env:
+      DEPLOY_REPO_NAME: rhrlima/app-manifests
+      MANIFEST_PATH: stage/axum-api/deployment.yaml
+
+    steps:
+    - name: Get Deploy Tag
+      uses: actions/download-artifact@v4
+      with:
+        name: deploy_tag
+        path: deploys/${{ github.run_id }}
+
+    - name: Trigger Deploy
+      run: |
+        IMAGE_NAME="${{ vars.REGISTRY_DOMAIN }}/${ GITHUB_REPOSITORY }"
+        IMAGE_TAG=$(git describe --tags --abbrev=0)
+
+        curl -X POST https://api.github.com/repos/${DEPLOY_REPO_NAME}/dispatches \
+        -H 'Accept: application/vnd.github.everest-preview+json' \
+        -u ${{ secrets.ACTIONS_KEY }} \
+        --data '{
+          "event_type": "Automated Deploy",
+          "client_payload": {
+            "image_tag": "'"$IMAGE_TAG"'",
+            "image_name": "'"$IMAGE_NAME"'",
+            "manifest_path": "'"$MANIFEST_PATH"'"
+          }}'
