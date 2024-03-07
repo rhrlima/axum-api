@@ -17,12 +17,12 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Fetch Tags
-      run: git fetch --tags
+      run: git fetch --tags --depth=10
 
     - name: Trigger Deploy
       run: |
         IMAGE_NAME="${{ vars.REGISTRY_DOMAIN }}/${{ vars.REGISTRY_NAME }}"
-        IMAGE_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
+        IMAGE_TAG=$(git describe --tags)
 
         curl -X POST https://api.github.com/repos/${DEPLOY_REPO_NAME}/dispatches \
         -H 'Accept: application/vnd.github.everest-preview+json' \
