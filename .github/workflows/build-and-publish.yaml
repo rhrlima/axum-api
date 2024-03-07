@@ -86,7 +86,7 @@ jobs:
       if: github.ref == 'refs/heads/main'
       run: |
         DEPLOY_TAG=$(git describe --tags --abbrev=0)
-        IMAGE_NAME="${{ vars.REGISTRY_DOMAIN }}/${ GITHUB_REPOSITORY }"
+        IMAGE_NAME="${{ vars.REGISTRY_DOMAIN }}/${ vars.REGISTRY_NAME }"
 
         docker tag docker_image:latest ${IMAGE_NAME}:latest
         docker tag docker_image:latest ${IMAGE_NAME}:${DEPLOY_TAG}
