@@ -78,9 +78,6 @@ jobs:
       run: |
         DEPLOY_TAG=v$(git log -1 --format="%at" | xargs -I{} date -d @{} +%Y.%m.%d-%H.%M.%S)
 
-        mkdir -p deploys/${{ github.run_id }}
-        echo $DEPLOY_TAG > deploys/${{ github.run_id }}/deploy_tag
-
         git tag ${DEPLOY_TAG}
         git push --tags
 
@@ -88,8 +85,8 @@ jobs:
       # runs only in main
       if: github.ref == 'refs/heads/main'
       run: |
-        DEPLOY_TAG=$(cat deploys/${{ github.run_id }}/deploy_tag)
-        IMAGE_NAME="${{ vars.REGISTRY_DOMAIN }}/${{ vars.REGISTRY_NAME }}"
+        DEPLOY_TAG=$(git describe --tags --abbrev=0)
+        IMAGE_NAME="${{ vars.REGISTRY_DOMAIN }}/${ GITHUB_REPOSITORY }"
 
         docker tag docker_image:latest ${IMAGE_NAME}:latest
         docker tag docker_image:latest ${IMAGE_NAME}:${DEPLOY_TAG}
@@ -97,17 +94,8 @@ jobs:
         docker push ${IMAGE_NAME}:latest
         docker push ${IMAGE_NAME}:${DEPLOY_TAG}
 
-    - name: Upload Deploy Tag
-      # runs only in main
-      if: github.ref == 'refs/heads/main'
-      uses: actions/upload-artifact@v4
-      with:
-        name: deploy_tag
-        path: deploys/${{ github.run_id }}/deploy_tag
-        retention-days: 7
-
-  trigger_deploy:
-    name: Trigger Deploy
+  dev_deploy:
+    name: Dev Deploy
     needs: docker_build_and_publish
     runs-on: ubuntu-latest
 
@@ -115,9 +103,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
 
     env:
-      USER_NAME: rhrlima
-      REPO_NAME: app-manifests
-      IMAGE_NAME: ghcr.io/rhrlima/axum-api
+      DEPLOY_REPO_NAME: rhrlima/app-manifests
       MANIFEST_PATH: dev/axum-api/deployment.yaml
 
     steps:
@@ -129,9 +115,10 @@ jobs:
 
     - name: Trigger Deploy
       run: |
-        IMAGE_TAG=$(cat deploys/${{ github.run_id }}/deploy_tag)
+        IMAGE_NAME="${{ vars.REGISTRY_DOMAIN }}/${ GITHUB_REPOSITORY }"
+        IMAGE_TAG=$(git describe --tags --abbrev=0)
 
-        curl -X POST https://api.github.com/repos/${USER_NAME}/${REPO_NAME}/dispatches \
+        curl -X POST https://api.github.com/repos/${DEPLOY_REPO_NAME}/dispatches \
         -H 'Accept: application/vnd.github.everest-preview+json' \
         -u ${{ secrets.ACTIONS_KEY }} \
         --data '{
