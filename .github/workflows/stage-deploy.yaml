@@ -22,7 +22,7 @@ jobs:
     - name: Trigger Deploy
       run: |
         IMAGE_NAME="${{ vars.REGISTRY_DOMAIN }}/${{ vars.REGISTRY_NAME }}"
-        IMAGE_TAG=$(git describe --tags)
+        IMAGE_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
 
         curl -X POST https://api.github.com/repos/${DEPLOY_REPO_NAME}/dispatches \
         -H 'Accept: application/vnd.github.everest-preview+json' \
