@@ -6,7 +6,6 @@ on:
 jobs:
   stage_deploy:
     name: Stage Deploy
-    needs: docker_build_and_publish
     runs-on: ubuntu-latest
 
     env:
@@ -14,12 +13,6 @@ jobs:
       MANIFEST_PATH: stage/axum-api/deployment.yaml
 
     steps:
-    - name: Get Deploy Tag
-      uses: actions/download-artifact@v4
-      with:
-        name: deploy_tag
-        path: deploys/${{ github.run_id }}
-
     - name: Trigger Deploy
       run: |
         IMAGE_NAME="${{ vars.REGISTRY_DOMAIN }}/${{ vars.REGISTRY_NAME }}"
