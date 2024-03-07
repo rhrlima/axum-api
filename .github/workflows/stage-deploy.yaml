@@ -22,7 +22,7 @@ jobs:
 
     - name: Trigger Deploy
       run: |
-        IMAGE_NAME="${{ vars.REGISTRY_DOMAIN }}/${ vars.REGISTRY_NAME }"
+        IMAGE_NAME="${{ vars.REGISTRY_DOMAIN }}/${{ vars.REGISTRY_NAME }}"
         IMAGE_TAG=$(git describe --tags --abbrev=0)
 
         curl -X POST https://api.github.com/repos/${DEPLOY_REPO_NAME}/dispatches \
