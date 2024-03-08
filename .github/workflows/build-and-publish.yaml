@@ -94,10 +94,11 @@ jobs:
         docker push ${IMAGE_NAME}:latest
         docker push ${IMAGE_NAME}:${DEPLOY_TAG}
 
-  dev_deploy:
-    name: Dev Deploy
+  deploy_dev:
+    name: Deploy Dev
     needs: docker_build_and_publish
     runs-on: ubuntu-latest
+    environment: development
 
     # run on MAIN
     if: github.ref == 'refs/heads/main'
@@ -105,6 +106,42 @@ jobs:
     env:
       DEPLOY_REPO_NAME: rhrlima/app-manifests
       MANIFEST_PATH: dev/axum-api/deployment.yaml
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Fetch Tags
+      run: git fetch --tags --depth=10
+
+    - name: Trigger Deploy
+      run: |
+        IMAGE_NAME="${{ vars.REGISTRY_DOMAIN }}/${{ vars.REGISTRY_NAME }}"
+        IMAGE_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
+
+        curl -X POST https://api.github.com/repos/${DEPLOY_REPO_NAME}/dispatches \
+        -H 'Accept: application/vnd.github.everest-preview+json' \
+        -u ${{ secrets.ACTIONS_KEY }} \
+        --data '{
+          "event_type": "Automated Deploy",
+          "client_payload": {
+            "image_tag": "'"$IMAGE_TAG"'",
+            "image_name": "'"$IMAGE_NAME"'",
+            "manifest_path": "'"$MANIFEST_PATH"'"
+          }}'
+
+  deploy_stage:
+    name: Deploy Stage
+    needs: deploy_dev
+    runs-on: ubuntu-latest
+    environment: staging
+
+    # run on MAIN
+    if: github.ref == 'refs/heads/main'
+
+    env:
+      DEPLOY_REPO_NAME: rhrlima/app-manifests
+      MANIFEST_PATH: stage/axum-api/deployment.yaml
 
     steps:
     - name: Checkout repository
