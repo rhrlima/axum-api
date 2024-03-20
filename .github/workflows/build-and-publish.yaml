@@ -1,14 +1,11 @@
 name: Build & Publish
 
-on: [push, pull_request]
+on: [push]
 
 jobs:
   build_and_test:
     name: Build & Test
     runs-on: ubuntu-latest
-
-    # run on PUSH and MAIN
-    if: github.event_name == 'push' || github.ref == 'refs/heads/main'
 
     steps:
     - name: Checkout repository
@@ -32,8 +29,8 @@ jobs:
     name: Heavy Tests
     runs-on: ubuntu-latest
 
-    # run on PRs and MAIN
-    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+    # PRs or MAIN or DEVELOP
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
 
     steps:
     - name: Checkout repository
@@ -53,9 +50,6 @@ jobs:
       contents: write
       packages: write
 
-    # run on PUSH and MAIN
-    if: github.event_name == 'push' || github.ref == 'refs/heads/main'
-
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -64,8 +58,8 @@ jobs:
       run: docker build -t docker_image .
 
     - name: Login to GitHub Container Registry
-      # runs only in main
-      if: github.ref == 'refs/heads/main'
+      # MAIN or DEVELOP
+      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
       uses: docker/login-action@v3
       with:
         registry: ghcr.io
@@ -73,8 +67,8 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Create Deploy Tag
-      # runs only in main
-      if: github.ref == 'refs/heads/main'
+      # MAIN or DEVELOP
+      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
       run: |
         DEPLOY_TAG=v$(git log -1 --format="%at" | xargs -I{} date -d @{} +%Y.%m.%d-%H.%M.%S)
 
@@ -82,8 +76,8 @@ jobs:
         git push --tags
 
     - name: Build & Push Docker image
-      # runs only in main
-      if: github.ref == 'refs/heads/main'
+      # MAIN or DEVELOP
+      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
       run: |
         DEPLOY_TAG=$(git describe --tags --abbrev=0)
         IMAGE_NAME="${{ vars.REGISTRY_DOMAIN }}/${{ vars.REGISTRY_NAME }}"
@@ -100,8 +94,8 @@ jobs:
     runs-on: ubuntu-latest
     environment: development
 
-    # run on MAIN
-    if: github.ref == 'refs/heads/main'
+    # MAIN or DEVELOP
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
 
     env:
       DEPLOY_REPO_NAME: rhrlima/app-manifests
@@ -123,7 +117,7 @@ jobs:
         -H 'Accept: application/vnd.github.everest-preview+json' \
         -u ${{ secrets.ACTIONS_KEY }} \
         --data '{
-          "event_type": "Automated Deploy",
+          "event_type": "Deploy Dev",
           "client_payload": {
             "image_tag": "'"$IMAGE_TAG"'",
             "image_name": "'"$IMAGE_NAME"'",
@@ -136,8 +130,8 @@ jobs:
     runs-on: ubuntu-latest
     environment: staging
 
-    # run on MAIN
-    if: github.ref == 'refs/heads/main'
+    # MAIN or DEVELOP
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
 
     env:
       DEPLOY_REPO_NAME: rhrlima/app-manifests
@@ -159,7 +153,7 @@ jobs:
         -H 'Accept: application/vnd.github.everest-preview+json' \
         -u ${{ secrets.ACTIONS_KEY }} \
         --data '{
-          "event_type": "Automated Deploy",
+          "event_type": "Deploy Stage",
           "client_payload": {
             "image_tag": "'"$IMAGE_TAG"'",
             "image_name": "'"$IMAGE_NAME"'",
