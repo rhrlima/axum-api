@@ -19,9 +19,6 @@ inputs:
 runs:
   using: composite
   steps:
-  - name: Checkout repository
-    uses: actions/checkout@v4
-
   - name: Get Image Tag
     run: |
       git fetch --tags --depth=10
