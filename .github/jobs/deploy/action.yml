@@ -18,7 +18,6 @@ inputs:
   TOKEN:
     description: PAT token with access to the manifest repo
     required: false
-    default: ${{ secrets.ACTIONS_KEY }}
   EVENT_TYPE:
     description: Name of the event sent to the remote workflow
     required: true

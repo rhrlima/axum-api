@@ -118,6 +118,7 @@ jobs:
         REPO_NAME: ${{ env.DEPLOY_REPO_NAME }}
         MANIFEST_PATH: "dev/${{ env.DEPLOY_MANIFEST_PATH }}"
         EVENT_TYPE: "[DEV] Deploy Axum API"
+        TOKEN: ${{ secrets.ACTIONS_KEY }}
 
   deploy_stage:
     name: Deploy Stage
@@ -147,3 +148,4 @@ jobs:
         IMAGE_NAME: "${{ vars.REGISTRY_DOMAIN }}/${{ vars.REGISTRY_NAME }}"
         IMAGE_TAG: ${{ env.IMAGE_TAG }}
         EVENT_TYPE: "[STAGE] Deploy Axum API"
+        TOKEN: ${{ secrets.ACTIONS_KEY }}
