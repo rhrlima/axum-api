@@ -117,7 +117,7 @@ jobs:
         -H 'Accept: application/vnd.github.everest-preview+json' \
         -u ${{ secrets.ACTIONS_KEY }} \
         --data '{
-          "event_type": "Deploy Dev",
+          "event_type": "[DEV] Deploy Axum API",
           "client_payload": {
             "image_tag": "'"$IMAGE_TAG"'",
             "image_name": "'"$IMAGE_NAME"'",
@@ -153,7 +153,7 @@ jobs:
         -H 'Accept: application/vnd.github.everest-preview+json' \
         -u ${{ secrets.ACTIONS_KEY }} \
         --data '{
-          "event_type": "Deploy Stage",
+          "event_type": "[STAGE] Deploy Axum API",
           "client_payload": {
             "image_tag": "'"$IMAGE_TAG"'",
             "image_name": "'"$IMAGE_NAME"'",
