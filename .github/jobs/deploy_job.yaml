@@ -1,0 +1,41 @@
+name: Deploy
+description: Deploy to environment
+inputs:
+  IMAGE_NAME:
+    description: Image name to be deployed
+    required: true
+  DEPLOY_REPO_NAME:
+    description: Name of the repo with the manifests
+    required: true
+  MANIFEST_PATH:
+    description: Path to the YAML manifest to update the image
+    required: true
+  TOKEN:
+    description: PAT token with access to the manifest repo
+    required: true
+  EVENT_TYPE:
+    description: Name of the event sent to the remote workflow
+    required: true
+runs:
+  using: composite
+  steps:
+  - name: Checkout repository
+    uses: actions/checkout@v4
+
+  - name: Get Image Tag
+    run: |
+      git fetch --tags --depth=10
+      echo "IMAGE_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)" >> $GITHUB_ENV
+
+  - name: Repository Dispatch
+    uses: peter-evans/repository-dispatch@v3
+    with:
+      token: ${{ inputs.TOKEN }}
+      repository: ${{ inputs.DEPLOY_REPO_NAME }}
+      event-type: ${{ inputs.EVENT_TYPE }}
+      client-payload: |
+        {
+          "image_tag": "${IMAGE_TAG}",
+          "image_name": "${{ inputs.IMAGE_NAME }}",
+          "manifest_path": "${{ inputs.MANIFEST_PATH }}"
+        }

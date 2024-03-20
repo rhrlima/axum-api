@@ -97,32 +97,15 @@ jobs:
     # MAIN or DEVELOP
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
 
-    env:
-      DEPLOY_REPO_NAME: rhrlima/app-manifests
-      MANIFEST_PATH: dev/axum-api/deployment.yaml
-
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-
-    - name: Fetch Tags
-      run: git fetch --tags --depth=10
-
-    - name: Trigger Deploy
-      run: |
-        IMAGE_NAME="${{ vars.REGISTRY_DOMAIN }}/${{ vars.REGISTRY_NAME }}"
-        IMAGE_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
-
-        curl -X POST https://api.github.com/repos/${DEPLOY_REPO_NAME}/dispatches \
-        -H 'Accept: application/vnd.github.everest-preview+json' \
-        -u ${{ secrets.ACTIONS_KEY }} \
-        --data '{
-          "event_type": "[DEV] Deploy Axum API",
-          "client_payload": {
-            "image_tag": "'"$IMAGE_TAG"'",
-            "image_name": "'"$IMAGE_NAME"'",
-            "manifest_path": "'"$MANIFEST_PATH"'"
-          }}'
+    - name: Repository Dispatch
+      uses: ./.github/jobs/deploy_job.yaml
+      with:
+        IMAGE_NAME: "${{ vars.REGISTRY_DOMAIN }}/${{ vars.REGISTRY_NAME }}"
+        DEPLOY_REPO_NAME: "rhrlima/app-manifests"
+        MANIFEST_PATH: "dev/axum-api/deployment.yaml"
+        TOKEN: ${{ secrets.ACTIONS_KEY }}
+        EVENT_TYPE: "[DEV] Deploy Axum API"
 
   deploy_stage:
     name: Deploy Stage
