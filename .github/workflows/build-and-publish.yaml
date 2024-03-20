@@ -99,7 +99,7 @@ jobs:
 
     steps:
     - name: Repository Dispatch
-      uses: ./.github/jobs/deploy_job.yaml
+      uses: ./.github/jobs/deploy
       with:
         IMAGE_NAME: "${{ vars.REGISTRY_DOMAIN }}/${{ vars.REGISTRY_NAME }}"
         DEPLOY_REPO_NAME: "rhrlima/app-manifests"
