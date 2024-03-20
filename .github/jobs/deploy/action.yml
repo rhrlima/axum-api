@@ -33,7 +33,7 @@ runs:
       event-type: ${{ inputs.EVENT_TYPE }}
       client-payload: |
         {
-          "image_tag": "${IMAGE_TAG}",
+          "image_tag": "${{ env.IMAGE_TAG }}",
           "image_name": "${{ inputs.IMAGE_NAME }}",
           "manifest_path": "${{ inputs.MANIFEST_PATH }}"
         }

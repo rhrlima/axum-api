@@ -54,43 +54,43 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Build Docker Image
-      run: docker build -t docker_image .
+    # - name: Build Docker Image
+    #   run: docker build -t docker_image .
 
-    - name: Login to GitHub Container Registry
-      # MAIN or DEVELOP
-      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
-      uses: docker/login-action@v3
-      with:
-        registry: ghcr.io
-        username: ${{ github.repository_owner }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+    # - name: Login to GitHub Container Registry
+    #   # MAIN or DEVELOP
+    #   if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+    #   uses: docker/login-action@v3
+    #   with:
+    #     registry: ghcr.io
+    #     username: ${{ github.repository_owner }}
+    #     password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Create Deploy Tag
-      # MAIN or DEVELOP
-      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
-      run: |
-        DEPLOY_TAG=v$(git log -1 --format="%at" | xargs -I{} date -d @{} +%Y.%m.%d-%H.%M.%S)
+    # - name: Create Deploy Tag
+    #   # MAIN or DEVELOP
+    #   if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+    #   run: |
+    #     DEPLOY_TAG=v$(git log -1 --format="%at" | xargs -I{} date -d @{} +%Y.%m.%d-%H.%M.%S)
 
-        git tag ${DEPLOY_TAG}
-        git push --tags
+    #     git tag ${DEPLOY_TAG}
+    #     git push --tags
 
-    - name: Build & Push Docker image
-      # MAIN or DEVELOP
-      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
-      run: |
-        DEPLOY_TAG=$(git describe --tags --abbrev=0)
-        IMAGE_NAME="${{ vars.REGISTRY_DOMAIN }}/${{ vars.REGISTRY_NAME }}"
+    # - name: Build & Push Docker image
+    #   # MAIN or DEVELOP
+    #   if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+    #   run: |
+    #     DEPLOY_TAG=$(git describe --tags --abbrev=0)
+    #     IMAGE_NAME="${{ vars.REGISTRY_DOMAIN }}/${{ vars.REGISTRY_NAME }}"
 
-        docker tag docker_image:latest ${IMAGE_NAME}:latest
-        docker tag docker_image:latest ${IMAGE_NAME}:${DEPLOY_TAG}
+    #     docker tag docker_image:latest ${IMAGE_NAME}:latest
+    #     docker tag docker_image:latest ${IMAGE_NAME}:${DEPLOY_TAG}
 
-        docker push ${IMAGE_NAME}:latest
-        docker push ${IMAGE_NAME}:${DEPLOY_TAG}
+    #     docker push ${IMAGE_NAME}:latest
+    #     docker push ${IMAGE_NAME}:${DEPLOY_TAG}
 
   deploy_dev:
     name: Deploy Dev
-    needs: docker_build_and_publish
+    # needs: docker_build_and_publish
     runs-on: ubuntu-latest
     environment: development
 
@@ -110,38 +110,38 @@ jobs:
         TOKEN: ${{ secrets.ACTIONS_KEY }}
         EVENT_TYPE: "[DEV] Deploy Axum API"
 
-  deploy_stage:
-    name: Deploy Stage
-    needs: deploy_dev
-    runs-on: ubuntu-latest
-    environment: staging
+  # deploy_stage:
+  #   name: Deploy Stage
+  #   needs: deploy_dev
+  #   runs-on: ubuntu-latest
+  #   environment: staging
 
-    # MAIN or DEVELOP
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+  #   # MAIN or DEVELOP
+  #   if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
 
-    env:
-      DEPLOY_REPO_NAME: rhrlima/app-manifests
-      MANIFEST_PATH: stage/axum-api/deployment.yaml
+  #   env:
+  #     DEPLOY_REPO_NAME: rhrlima/app-manifests
+  #     MANIFEST_PATH: stage/axum-api/deployment.yaml
 
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+  #   steps:
+  #   - name: Checkout repository
+  #     uses: actions/checkout@v4
 
-    - name: Fetch Tags
-      run: git fetch --tags --depth=10
+  #   - name: Fetch Tags
+  #     run: git fetch --tags --depth=10
 
-    - name: Trigger Deploy
-      run: |
-        IMAGE_NAME="${{ vars.REGISTRY_DOMAIN }}/${{ vars.REGISTRY_NAME }}"
-        IMAGE_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
+  #   - name: Trigger Deploy
+  #     run: |
+  #       IMAGE_NAME="${{ vars.REGISTRY_DOMAIN }}/${{ vars.REGISTRY_NAME }}"
+  #       IMAGE_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
 
-        curl -X POST https://api.github.com/repos/${DEPLOY_REPO_NAME}/dispatches \
-        -H 'Accept: application/vnd.github.everest-preview+json' \
-        -u ${{ secrets.ACTIONS_KEY }} \
-        --data '{
-          "event_type": "[STAGE] Deploy Axum API",
-          "client_payload": {
-            "image_tag": "'"$IMAGE_TAG"'",
-            "image_name": "'"$IMAGE_NAME"'",
-            "manifest_path": "'"$MANIFEST_PATH"'"
-          }}'
+  #       curl -X POST https://api.github.com/repos/${DEPLOY_REPO_NAME}/dispatches \
+  #       -H 'Accept: application/vnd.github.everest-preview+json' \
+  #       -u ${{ secrets.ACTIONS_KEY }} \
+  #       --data '{
+  #         "event_type": "[STAGE] Deploy Axum API",
+  #         "client_payload": {
+  #           "image_tag": "'"$IMAGE_TAG"'",
+  #           "image_name": "'"$IMAGE_NAME"'",
+  #           "manifest_path": "'"$MANIFEST_PATH"'"
+  #         }}'
