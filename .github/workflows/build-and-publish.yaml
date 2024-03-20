@@ -2,10 +2,6 @@ name: Build & Publish
 
 on: [push]
 
-defaults:
-  run:
-    shell: bash
-
 jobs:
   build_and_test:
     name: Build & Test
