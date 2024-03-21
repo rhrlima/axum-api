@@ -1,5 +1,6 @@
 name: Deploy
 description: Deploy to environment
+
 inputs:
   IMAGE_NAME:
     description: Image name to be deployed
@@ -21,13 +22,23 @@ inputs:
   EVENT_TYPE:
     description: Name of the event sent to the remote workflow
     required: true
+
 runs:
   using: composite
   steps:
+  - name: Checkout repository
+    uses: actions/checkout@v4
+
+  - name: Get Image Tag
+    shell: bash
+    run: |
+      git fetch --tags --depth=10
+      echo "IMAGE_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)" >> $GITHUB_ENV
+
   - name: Repository Dispatch
     uses: peter-evans/repository-dispatch@v3
     with:
-      token: ${{ inputs.TOKEN }}
+      token: ${{ secrets.ACTIONS_KEY }}
       repository: ${{ inputs.REPO_NAME }}
       event-type: ${{ inputs.EVENT_TYPE }}
       client-payload: |
