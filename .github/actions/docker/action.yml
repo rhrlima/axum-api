@@ -7,6 +7,10 @@ inputs:
     default: false
   IMAGE_NAME:
     required: true
+  DOCKER_USERNAME:
+    required: true
+  DOCKER_PASSWORD:
+    required: true
 
 runs:
   using: composite
@@ -15,6 +19,7 @@ runs:
     uses: actions/checkout@v4
 
   - name: Build Docker Image
+    shell: bash
     run: docker build -t docker_image .
 
   - name: Login to GitHub Container Registry
@@ -22,8 +27,8 @@ runs:
     uses: docker/login-action@v3
     with:
       registry: ghcr.io
-      username: ${{ github.repository_owner }}
-      password: ${{ secrets.GITHUB_TOKEN }}
+      username: ${{ inputs.DOCKER_USERNAME }}
+      password: ${{ inputs.DOCKER_PASSWORD }}
 
   - name: Create Deploy Tag
     if: ${{ inputs.PUBLISH }}

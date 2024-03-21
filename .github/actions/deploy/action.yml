@@ -38,7 +38,7 @@ runs:
   - name: Repository Dispatch
     uses: peter-evans/repository-dispatch@v3
     with:
-      token: ${{ secrets.ACTIONS_KEY }}
+      token: ${{ inputs.TOKEN }}
       repository: ${{ inputs.REPO_NAME }}
       event-type: ${{ inputs.EVENT_TYPE }}
       client-payload: |

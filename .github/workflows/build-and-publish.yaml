@@ -59,6 +59,8 @@ jobs:
     - uses: rhrlima/axum-api/.github/actions/docker@develop
       with:
         IMAGE_NAME: "${{ vars.REGISTRY_DOMAIN }}/${{ vars.REGISTRY_NAME }}"
+        DOCKER_USERNAME: ${{ github.repository_owner }}
+        DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
   deploy_dev:
     name: Deploy Dev
@@ -77,6 +79,7 @@ jobs:
         REPO_NAME: ${{ env.DEPLOY_REPO_NAME }}
         MANIFEST_PATH: "dev/${{ env.DEPLOY_MANIFEST_PATH }}"
         EVENT_TYPE: "[DEV] Deploy Axum API"
+        TOKEN: ${{ secrets.ACTIONS_KEY }}
 
   # deploy_stage:
   #   name: Deploy Stage
