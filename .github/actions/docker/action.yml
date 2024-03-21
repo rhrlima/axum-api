@@ -23,7 +23,7 @@ runs:
     run: docker build -t docker_image .
 
   - name: Login to GitHub Container Registry
-    if: ${{ inputs.PUBLISH }}
+    if: ${{ inputs.PUBLISH }} == true
     uses: docker/login-action@v3
     with:
       registry: ghcr.io
@@ -31,7 +31,7 @@ runs:
       password: ${{ inputs.DOCKER_PASSWORD }}
 
   - name: Create Deploy Tag
-    if: ${{ inputs.PUBLISH }}
+    if: ${{ inputs.PUBLISH }} == true
     shell: bash
     run: |
       DEPLOY_TAG=v$(git log -1 --format="%at" | xargs -I{} date -d @{} +%Y.%m.%d-%H.%M.%S)
@@ -40,7 +40,7 @@ runs:
       git push --tags
 
   - name: Build & Push Docker image
-    if: ${{ inputs.PUBLISH }}
+    if: ${{ inputs.PUBLISH }} == true
     shell: bash
     run: |
       DEPLOY_TAG=$(git describe --tags --abbrev=0)
