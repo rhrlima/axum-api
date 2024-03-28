@@ -1,16 +1,6 @@
 name: Build & Publish
 
-on:
-  workflow_dispatch:
-    inputs:
-      BRANCH:
-        description: Branch to use
-        required: true
-        default: develop
-        type: choice
-        options:
-          - main
-          - develop
+on: [workflow_dispatch]
 
 env:
   DEPLOY_REPO_NAME: "rhrlima/app-manifests"

@@ -8,8 +8,7 @@ inputs:
     default: "ghcr.io/${{ github.repository }}"
   IMAGE_TAG:
     description: Image tag to be deployed
-    requried: false
-    default: latest
+    required: false
   REPO_NAME:
     description: Name of the repo with the manifests
     required: true
@@ -30,6 +29,7 @@ runs:
     uses: actions/checkout@v4
 
   - name: Get Image Tag
+    if: ${{ inputs.IMAGE_TAG == '' }}
     shell: bash
     run: |
       git fetch --tags --depth=10
@@ -43,7 +43,7 @@ runs:
       event-type: ${{ inputs.EVENT_TYPE }}
       client-payload: |
         {
-          "image_tag": "${{ inputs.IMAGE_TAG }}",
+          "image_tag": "${{ inputs.IMAGE_TAG || env.IMAGE_TAG }}",
           "image_name": "${{ inputs.IMAGE_NAME }}",
           "manifest_path": "${{ inputs.MANIFEST_PATH }}"
         }
