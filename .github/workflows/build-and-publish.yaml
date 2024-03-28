@@ -1,6 +1,16 @@
 name: Build & Publish
 
-on: [push]
+on:
+  workflow_dispatch:
+    inputs:
+      BRANCH:
+        description: Branch to use
+        required: true
+        default: develop
+        type: choice
+        options:
+          - main
+          - develop
 
 env:
   DEPLOY_REPO_NAME: "rhrlima/app-manifests"
@@ -12,40 +22,38 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Lint
-      run: echo "Linting code"
+      - name: Lint
+        run: echo "Linting code"
 
-    - name: Setup Rust
-      uses: ATiltedTree/setup-rust@v1
-      with:
-        rust-version: "1.70.0"
+      - name: Setup Rust
+        uses: ATiltedTree/setup-rust@v1
+        with:
+          rust-version: "1.70.0"
 
-    - name: Build Rust application
-      run: cargo build --release
+      - name: Build Rust application
+        run: cargo build --release
 
-    - name: Light Tests
-      run: cargo test --release
+      - name: Light Tests
+        run: cargo test --release
 
   heavy_tests:
     name: Heavy Tests
     runs-on: ubuntu-latest
 
-    # PRs or MAIN or DEVELOP
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
-
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Setup Rust
-      uses: ATiltedTree/setup-rust@v1
-      with:
-        rust-version: "1.70.0"
-    - name: Heavy Tests
-      run: cargo test --release
+      - name: Setup Rust
+        uses: ATiltedTree/setup-rust@v1
+        with:
+          rust-version: "1.70.0"
+
+      - name: Heavy Tests
+        run: cargo test --release
 
   docker_build_and_publish:
     name: Docker Build & Publish
@@ -56,11 +64,11 @@ jobs:
       packages: write
 
     steps:
-    - uses: rhrlima/axum-api/.github/actions/docker@develop
-      with:
-        IMAGE_NAME: "${{ vars.REGISTRY_DOMAIN }}/${{ vars.REGISTRY_NAME }}"
-        DOCKER_USERNAME: ${{ github.repository_owner }}
-        DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+      - uses: rhrlima/axum-api/.github/actions/docker@develop
+        with:
+          IMAGE_NAME: "${{ vars.REGISTRY_DOMAIN }}/${{ vars.REGISTRY_NAME }}"
+          DOCKER_USERNAME: ${{ github.repository_owner }}
+          DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
   deploy_dev:
     name: Deploy Dev
@@ -68,18 +76,15 @@ jobs:
     runs-on: ubuntu-latest
     environment: development
 
-    # MAIN or DEVELOP
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
-
     steps:
-    - name: Repository Dispatch
-      uses: rhrlima/axum-api/.github/actions/deploy@develop
-      with:
-        # test only with required parameters
-        REPO_NAME: ${{ env.DEPLOY_REPO_NAME }}
-        MANIFEST_PATH: "dev/${{ env.DEPLOY_MANIFEST_PATH }}"
-        EVENT_TYPE: "[DEV] Deploy Axum API"
-        TOKEN: ${{ secrets.ACTIONS_KEY }}
+      - name: Repository Dispatch
+        uses: rhrlima/axum-api/.github/actions/deploy@develop
+        with:
+          # test only with required parameters
+          REPO_NAME: ${{ env.DEPLOY_REPO_NAME }}
+          MANIFEST_PATH: "dev/${{ env.DEPLOY_MANIFEST_PATH }}"
+          EVENT_TYPE: "[DEV] Deploy Axum API"
+          TOKEN: ${{ secrets.ACTIONS_KEY }}
 
   # deploy_stage:
   #   name: Deploy Stage
