@@ -20,3 +20,4 @@ jobs:
         uses: saadmk11/changelog-ci@v1.1.2
         with:
           release_version: ${{ github.event.inputs.release_version }}
+          github_token: ${{ secrets.ACTIONS_KEY }}
