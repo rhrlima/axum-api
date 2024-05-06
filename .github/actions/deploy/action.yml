@@ -33,7 +33,7 @@ runs:
     shell: bash
     run: |
       git fetch --tags --depth=10
-      echo "IMAGE_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)" >> $GITHUB_ENV
+      echo "IMAGE_TAG=$(git tag -l --sort -v:refname | head -n1)" >> $GITHUB_ENV
 
   - name: Repository Dispatch
     uses: peter-evans/repository-dispatch@v3

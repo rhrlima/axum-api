@@ -1,0 +1,31 @@
+name: Build & Test
+
+on: [workflow_dispatch]
+
+jobs:
+  build_and_test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Lint
+        run: echo "Linting code"
+
+      - name: Setup Rust
+        uses: ATiltedTree/setup-rust@v1
+        with:
+          rust-version: "1.70.0"
+
+      - name: Build Rust application
+        run: cargo build --release
+
+      - name: Light Tests
+        run: cargo test --release
+
+      - name: Heavy Tests
+        # only MAIN branch
+        if: github.ref == 'refs/heads/main'
+        run: cargo test --release
