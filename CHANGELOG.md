@@ -1,3 +1,15 @@
+# Version: v1.0.5 (01-01-2024)
+
+
+#### Code Improvements
+
+* [#33](https://github.com/rhrlima/axum-api/pull/33): Update feature 2 to 2.1
+
+#### New Features
+
+* [#32](https://github.com/rhrlima/axum-api/pull/32): Add feature 3
+
+
 # Version: v1.0.4 (01-01-2024)
 
 
