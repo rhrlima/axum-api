@@ -36,3 +36,24 @@ jobs:
           MANIFEST_PATH: "dev/${{ env.DEPLOY_MANIFEST_PATH }}"
           EVENT_TYPE: "[DEV] Deploy Axum API"
           TOKEN: ${{ secrets.ACTIONS_KEY }}
+
+  release:
+    name: Create Release
+    needs: docker_build_and_publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get Deploy Tag
+        run: |
+          git fetch --tags --depth=10
+          echo "DEPLOY_TAG=$(git tag -l --sort -v:refname | head -n1)" >> $GITHUB_ENV
+
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          automatic_release_tag: ${{ env.DEPLOY_TAG }}
+          repo_token:  ${{ secrets.ACTIONS_KEY }}
+          prerelease: false
+          files: "*"
