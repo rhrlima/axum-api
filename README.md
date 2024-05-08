@@ -9,3 +9,4 @@ Small repo for testing CI automation with Github Actions.
 - Feature 3
 - Feature 4
 - Feature 5
+- Feature 6
