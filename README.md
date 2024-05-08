@@ -6,6 +6,6 @@ Small repo for testing CI automation with Github Actions.
 
 - Feature 1
 - Feature 2.1
-- Feature 3-bugfix
-- Feature 4-bugfix
+- Feature 3
+- Feature 4
 - Feature 5
