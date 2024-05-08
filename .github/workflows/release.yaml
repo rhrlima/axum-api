@@ -15,4 +15,3 @@ jobs:
         with:
           repo_token:  ${{ secrets.ACTIONS_KEY }}
           prerelease: false
-          files: "*"
