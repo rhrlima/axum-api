@@ -16,7 +16,7 @@ jobs:
       packages: write
 
     steps:
-      - uses: rhrlima/axum-api/.github/actions/docker@develop
+      - uses: rhrlima/axum-api/.github/actions/docker@main
         with:
           IMAGE_NAME: "${{ vars.REGISTRY_DOMAIN }}/${{ vars.REGISTRY_NAME }}"
           DOCKER_USERNAME: ${{ github.repository_owner }}
@@ -24,16 +24,27 @@ jobs:
 
   deploy_dev:
     name: Deploy Dev
-    # needs: docker_build_and_publish
+    needs: docker_build_and_publish
     runs-on: ubuntu-latest
     environment: development
 
     steps:
       - name: Repository Dispatch
-        uses: rhrlima/axum-api/.github/actions/deploy@develop
+        uses: rhrlima/axum-api/.github/actions/deploy@main
         with:
-          # test only with required parameters
           REPO_NAME: ${{ env.DEPLOY_REPO_NAME }}
           MANIFEST_PATH: "dev/${{ env.DEPLOY_MANIFEST_PATH }}"
           EVENT_TYPE: "[DEV] Deploy Axum API"
           TOKEN: ${{ secrets.ACTIONS_KEY }}
+
+  release:
+    name: Create Release
+    needs: docker_build_and_publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token:  ${{ secrets.ACTIONS_KEY }}
+          prerelease: false
+          files: "*"

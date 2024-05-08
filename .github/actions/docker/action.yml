@@ -43,7 +43,7 @@ runs:
       if: ${{ inputs.PUBLISH == true }}
       shell: bash
       run: |
-        DEPLOY_TAG=$(git describe --tags --abbrev=0)
+        DEPLOY_TAG=$(git tag -l --sort -v:refname | head -n1)
 
         docker tag docker_image:latest ${{ inputs.IMAGE_NAME }}:latest
         docker tag docker_image:latest ${{ inputs.IMAGE_NAME }}:${DEPLOY_TAG}
