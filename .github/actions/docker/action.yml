@@ -4,7 +4,7 @@ description: Builds Docker Image and Pushes it to a Registry
 inputs:
   PUBLISH:
     required: false
-    default: false
+    default: true
   IMAGE_NAME:
     required: true
   DOCKER_USERNAME:
