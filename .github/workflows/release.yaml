@@ -3,15 +3,26 @@ name: Auto Release
 on:
   push:
     tags:
-      - "v*"
+      - "*"
+
+# jobs:
+#   tagged-release:
+#     name: "Tagged Release"
+#     runs-on: "ubuntu-latest"
+
+#     steps:
+#       - uses: "marvinpinto/action-automatic-releases@latest"
+#         with:
+#           repo_token:  ${{ secrets.ACTIONS_KEY }}
+#           prerelease: false
 
 jobs:
-  tagged-release:
-    name: "Tagged Release"
-    runs-on: "ubuntu-latest"
-
+  auto-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - uses: "marvinpinto/action-automatic-releases@latest"
-        with:
-          repo_token:  ${{ secrets.ACTIONS_KEY }}
-          prerelease: false
+    - uses: actions/checkout@v4
+    - uses: ncipollo/release-action@v1
+      with:
+        bodyFile: "CHANGELOG2.md"
