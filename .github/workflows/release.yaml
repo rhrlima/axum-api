@@ -1,0 +1,20 @@
+name: Auto Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  tagged-release:
+    name: "Tagged Release"
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        id: release
+        with:
+          repo_token:  ${{ secrets.ACTIONS_KEY }}
+          prerelease: false
+          files: "*"
+      - run: echo ${{ steps.release.outputs.stdout }}
