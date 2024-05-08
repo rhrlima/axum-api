@@ -1,3 +1,16 @@
+# Version: v1.0.6
+
+
+#### Bug Fixes
+
+* [#37](https://github.com/rhrlima/axum-api/pull/37): bugfix: fir in feature 3
+
+#### New Features
+
+* [#35](https://github.com/rhrlima/axum-api/pull/35): Add release config
+* [#36](https://github.com/rhrlima/axum-api/pull/36): feat: add feature 4
+
+
 # Version: v1.0.5 (01-01-2024)
 
 
