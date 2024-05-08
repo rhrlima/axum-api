@@ -1,0 +1,18 @@
+# .github/release.yml
+
+changelog:
+  exclude:
+    labels:
+      - ignore-for-release
+    authors:
+      - github-actions[bot]
+  categories:
+    - title: Features
+      labels:
+        - feature
+    - title: Bugfix
+      labels:
+        - bugfix
+    - title: Other Changes
+      labels:
+        - "*"
