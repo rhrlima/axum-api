@@ -4,7 +4,7 @@
 
 Small repo for testing CI automation with Github Actions.
 
-- Feature 1-hotfix
+- Feature 1-hotfix2
 - Feature 2
 
 - Chore 1
