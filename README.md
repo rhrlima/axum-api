@@ -5,3 +5,4 @@
 Small repo for testing CI automation with Github Actions.
 
 - Feature 1-hotfix
+- Feature 2
