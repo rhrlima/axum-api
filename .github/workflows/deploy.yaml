@@ -39,6 +39,7 @@ jobs:
 
   publish_release_draft:
     name: Publish Release Draft
+    needs: docker_build_and_publish
     runs-on: ubuntu-latest
     permissions:
       # write permission is required to create a github release
