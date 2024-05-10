@@ -1,4 +1,5 @@
-[![Build & Test](https://github.com/rhrlima/axum-api/actions/workflows/build-and-test.yaml/badge.svg?branch=main)](https://github.com/rhrlima/axum-api/actions/workflows/build-and-test.yaml)[![Changelog](https://github.com/rhrlima/axum-api/actions/workflows/changelog.yaml/badge.svg)](https://github.com/rhrlima/axum-api/actions/workflows/changelog.yaml)
+[![Build & Test](https://github.com/rhrlima/axum-api/actions/workflows/build-and-test.yaml/badge.svg?branch=main)](https://github.com/rhrlima/axum-api/actions/workflows/build-and-test.yaml)
+[![Deploy](https://github.com/rhrlima/axum-api/actions/workflows/deploy.yaml/badge.svg)](https://github.com/rhrlima/axum-api/actions/workflows/deploy.yaml)
 
 # Axum-API
 
