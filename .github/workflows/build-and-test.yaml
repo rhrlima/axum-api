@@ -1,6 +1,6 @@
 name: Build & Test
 
-on: [workflow_dispatch]
+on: [push]
 
 jobs:
   build_and_test:
@@ -11,13 +11,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+
       - name: Lint
         run: echo "Linting code"
-
-      - name: Setup Rust
-        uses: ATiltedTree/setup-rust@v1
-        with:
-          rust-version: "1.70.0"
 
       - name: Build Rust application
         run: cargo build --release
