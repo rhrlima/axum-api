@@ -37,10 +37,15 @@ jobs:
           EVENT_TYPE: "[DEV] Deploy Axum API"
           TOKEN: ${{ secrets.ACTIONS_KEY }}
 
-  release:
-    name: Create Release
-    needs: docker_build_and_publish
+  publish_release_draft:
+    name: Publish Release Draft
     runs-on: ubuntu-latest
+    permissions:
+      # write permission is required to create a github release
+      contents: write
+      # write permission is required for autolabeler
+      # otherwise, read permission is required at least
+      pull-requests: read
 
     steps:
       - name: Checkout repository
@@ -51,9 +56,11 @@ jobs:
           git fetch --tags --depth=10
           echo "DEPLOY_TAG=$(git tag -l --sort -v:refname | head -n1)" >> $GITHUB_ENV
 
-      - uses: "marvinpinto/action-automatic-releases@latest"
+      - uses: release-drafter/release-drafter@v6
         with:
-          automatic_release_tag: ${{ env.DEPLOY_TAG }}
-          repo_token:  ${{ secrets.ACTIONS_KEY }}
-          prerelease: false
-          files: "*"
+          name: Release ${{ env.DEPLOY_TAG }}
+          tag: ${{ env.DEPLOY_TAG }}
+          publish: true
+          disable-autolabeler: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACTIONS_KEY }}
