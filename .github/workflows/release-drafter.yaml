@@ -5,15 +5,6 @@ on:
     branches:
       - main
 
-  workflow_dispatch:
-    inputs:
-      tag:
-        type: string
-        required: true
-      publish:
-        type: boolean
-        default: false
-
 permissions:
   contents: read
 
@@ -31,9 +22,7 @@ jobs:
       - uses: release-drafter/release-drafter@v6
         # (Optional) specify config name to use, relative to .github/. Default: release-drafter.yml
         with:
-          name: Release ${{ github.event.inputs.tag || 'DRAFT' }}
-          tag: ${{ github.event.inputs.tag || 'DRAFT' }}
-          publish: ${{ github.event.inputs.publish || 'false' }}
+          name: Release Candidate
           disable-autolabeler: true
         env:
           GITHUB_TOKEN: ${{ secrets.ACTIONS_KEY }}

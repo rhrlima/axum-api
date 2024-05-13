@@ -35,6 +35,11 @@ runs:
       git fetch --tags --depth=10
       echo "IMAGE_TAG=$(git tag -l --sort -v:refname | head -n1)" >> $GITHUB_ENV
 
+  - name: Get Latest Release
+    run: |
+      RELEASE_LINK=$(curl https://api.github.com/repos/rhrlima/axum-api/releases/latest | jq -r '.html_url')
+      echo "RELEASE_LINK=$(echo $RELEASE_LINK)" >> $GITHUB_ENV 
+
   - name: Repository Dispatch
     uses: peter-evans/repository-dispatch@v3
     with:
@@ -46,5 +51,6 @@ runs:
           "event_type": "${{ inputs.EVENT_TYPE }}",
           "image_tag": "${{ inputs.IMAGE_TAG || env.IMAGE_TAG }}",
           "image_name": "${{ inputs.IMAGE_NAME }}",
-          "manifest_path": "${{ inputs.MANIFEST_PATH }}"
+          "manifest_path": "${{ inputs.MANIFEST_PATH }}",
+          "latest_release": "${{ env.RELEASE_LINK }}"
         }
