@@ -1,6 +1,12 @@
 name: Build & Test
 
-on: [push]
+# limit this action to modifications to rust related files
+on:
+  push:
+    paths:
+      - 'src/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
 
 jobs:
   build_and_test:
