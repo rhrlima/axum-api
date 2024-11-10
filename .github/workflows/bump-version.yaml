@@ -1,0 +1,20 @@
+name: Bump Version
+
+on: [workflow_dispatch]
+
+jobs:
+  bump-version:
+    name: Update Version
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Bump Version
+        uses: paulhatch/semantic-version@latest
+
+      - name: Output Version
+        run: echo "Version: ${{ steps.bump-version.outputs.version }}"
