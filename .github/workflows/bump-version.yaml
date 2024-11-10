@@ -15,7 +15,7 @@ jobs:
 
       - name: Bump Version
         id: bump-version
-        uses: paulhatch/semantic-version@latest
+        uses: paulhatch/semantic-version@v5.4.0
 
       # - name: Output Version
       #   run: echo "Version: ${{ steps.bump-version.outputs.version }}"
