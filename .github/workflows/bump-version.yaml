@@ -14,6 +14,7 @@ jobs:
           fetch-depth: 0
 
       - name: Bump Version
+        id: bump-version
         uses: paulhatch/semantic-version@latest
 
       - name: Output Version
