@@ -1,6 +1,6 @@
 name: Bump Version
 
-on: [workflow_dispatch]
+on: [push]
 
 jobs:
   bump-version:
@@ -16,8 +16,6 @@ jobs:
       - name: Bump Version
         id: bump-version
         uses: paulhatch/semantic-version@v5.4.0
-        with:
-          bump_each_commit: true
 
       - name: Output Version
         run: echo "VERSION ${{ steps.bump-version.outputs.version }}"
