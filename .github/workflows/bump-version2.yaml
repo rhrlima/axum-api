@@ -18,7 +18,7 @@ jobs:
 
       - name: Generate Semantic Version
         id: semver
-        uses: rapidstack/PR-Label-Semver-Action@v1
+        uses: rapidstack/PR-Label-Semver-Action@v1.3.6
 
       - name: Version NPM Package
         run: echo "VERSION ${{ steps.semver.outputs.string }}"
