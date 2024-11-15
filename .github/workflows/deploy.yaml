@@ -64,4 +64,4 @@ jobs:
           publish: true
           disable-autolabeler: true
         env:
-          GITHUB_TOKEN: ${{ secrets.ACTIONS_KEY }}
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}

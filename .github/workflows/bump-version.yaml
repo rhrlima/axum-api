@@ -1,21 +1,22 @@
-name: Bump Version
+name: Create Tag
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
 
 jobs:
   bump-version:
-    name: Update Version
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
+      - name: Checkout Code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Bump Version
-        id: bump-version
-        uses: paulhatch/semantic-version@v5.4.0
+      - name: Generate Semantic Version
+        id: semver
+        uses: rapidstack/PR-Label-Semver-Action@v1.3.6
 
-      - name: Output Version
-        run: echo "VERSION ${{ steps.bump-version.outputs.version }}"
+      - name: Generate new Tag
+        run: |
+          git tag v${{ steps.semver.outputs.string }}
+          git push --tags

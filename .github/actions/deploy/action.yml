@@ -36,6 +36,7 @@ runs:
       echo "IMAGE_TAG=$(git tag -l --sort -v:refname | head -n1)" >> $GITHUB_ENV
 
   - name: Get Latest Release
+    shell: bash
     run: |
       RELEASE_LINK=$(curl https://api.github.com/repos/rhrlima/axum-api/releases/latest | jq -r '.html_url')
       echo "RELEASE_LINK=$(echo $RELEASE_LINK)" >> $GITHUB_ENV 
