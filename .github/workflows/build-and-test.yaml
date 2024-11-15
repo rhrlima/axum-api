@@ -1,11 +1,15 @@
+# Builds and tests the application.
+# Runs on PRs that are opened, synchronized, or reopened, with light tests.
+# On pushes to the main branch, it runs all tests (light and heavy). 
+
 name: Build & Test
 
 on:
   push:
-    paths:
-      - 'src/**'
-      - 'Cargo.toml'
-      - 'Cargo.lock'
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
   build_and_test:

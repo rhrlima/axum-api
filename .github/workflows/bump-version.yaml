@@ -20,6 +20,7 @@ jobs:
 
       - name: Set Version
         run: |
+          mkdir -p tmp
           echo "v${{ steps.semver.outputs.string }}" > tmp/version
           cat tmp/version
 
