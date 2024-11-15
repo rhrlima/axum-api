@@ -1,0 +1,26 @@
+# Validates a PR
+# A PR should contain at least one semVer label (major, minor, patch)
+# A PR should contain at lesat one release label (feature, bugfix, chore)
+
+name: Validate PR
+
+on:
+  pull_request:
+    types: [labeled, unlabeled, opened, edited, synchronize]
+
+jobs:
+  semver_label:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: yogevbd/enforce-label-action@2.2.2
+      with:
+        REQUIRED_LABELS_ANY: "feature,bugfix,chore"
+        REQUIRED_LABELS_ANY_DESCRIPTION: "Select at least one label ['feature, bugfix, chore']"
+  
+  release_label:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: yogevbd/enforce-label-action@2.2.2
+      with:
+        REQUIRED_LABELS_ANY: "major,minor,patch"
+        REQUIRED_LABELS_ANY_DESCRIPTION: "Select at least one label ['major, minor, patch']"
