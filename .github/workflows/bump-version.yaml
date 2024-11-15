@@ -1,12 +1,11 @@
-name: Create Tag
+name: Update Version
 
 on:
   pull_request:
     types:
-      - created
+      - opened
       - labeled
       - unlabeled
-      - merged
 
 jobs:
   bump-version:
@@ -19,8 +18,14 @@ jobs:
         id: semver
         uses: rapidstack/PR-Label-Semver-Action@v1.3.6
 
-      - name: Generate new Tag
-        if: github.event.pull_request.merged
+      - name: Set Version
         run: |
-          git tag v${{ steps.semver.outputs.string }}
-          git push --tags
+          mkdir -p tmp
+          echo "v${{ steps.semver.outputs.string }}" > tmp/version
+          cat tmp/version
+
+      - name: Upload new Version
+        uses: actions/upload-artifact@v4
+        with:
+          name: version
+          path: tmp/version

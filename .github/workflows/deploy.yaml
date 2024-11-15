@@ -7,8 +7,27 @@ env:
   DEPLOY_MANIFEST_PATH: "axum-api/deployment.yaml"
 
 jobs:
+  create_tag:
+    name: Create Tag
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download Version
+        uses: actions/download-artifact@v4
+        with:
+          name: version
+
+      - name: Create Tag
+        run: |
+          git tag $(cat tmp/version)
+          git push --tags
+
   docker_build_and_publish:
     name: Docker Build & Publish
+    needs: create_tag
     runs-on: ubuntu-latest
 
     permissions:
