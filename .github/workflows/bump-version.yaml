@@ -19,13 +19,10 @@ jobs:
         uses: rapidstack/PR-Label-Semver-Action@v1.3.6
 
       - name: Set Version
-        run: |
-          mkdir -p tmp
-          echo "v${{ steps.semver.outputs.string }}" > tmp/version
-          cat tmp/version
+        run: echo "APP_VERSION=v${{ steps.semver.outputs.string }}" >> $GITHUB_ENV
 
-      - name: Upload new Version
-        uses: actions/upload-artifact@v4
-        with:
-          name: version
-          path: tmp/version
+      - name: Set SemVer in Github Environment
+        run: gh variable set APP_VERSION --body $APP_VERSION
+        env:
+          APP_VERSION: ${{ env.APP_VERSION }}
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
