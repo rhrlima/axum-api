@@ -25,4 +25,4 @@ jobs:
         run: gh variable set APP_VERSION --body $APP_VERSION
         env:
           APP_VERSION: ${{ env.APP_VERSION }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
