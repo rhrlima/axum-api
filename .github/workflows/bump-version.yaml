@@ -1,9 +1,12 @@
 name: Create Tag
 
 on:
-  push:
-    branches:
-      - main
+  pull_request:
+    types:
+      - created
+      - labeled
+      - unlabeled
+      - merged
 
 jobs:
   bump-version:
@@ -17,6 +20,7 @@ jobs:
         uses: rapidstack/PR-Label-Semver-Action@v1.3.6
 
       - name: Generate new Tag
+        if: github.event.pull_request.merged
         run: |
           git tag v${{ steps.semver.outputs.string }}
           git push --tags
