@@ -2,10 +2,6 @@ name: Deploy
 
 on: [workflow_dispatch]
 
-env:
-  DEPLOY_REPO_NAME: "rhrlima/app-manifests"
-  DEPLOY_MANIFEST_PATH: "axum-api/deployment.yaml"
-
 jobs:
   publish_release_draft:
     name: Publish Release Draft
@@ -33,7 +29,6 @@ jobs:
 
   deploy_dev:
     name: Deploy Dev
-    needs: docker_build_and_publish
     runs-on: ubuntu-latest
     environment: development
 
@@ -41,7 +36,7 @@ jobs:
       - name: Repository Dispatch
         uses: rhrlima/axum-api/.github/actions/deploy@main
         with:
-          REPO_NAME: ${{ env.DEPLOY_REPO_NAME }}
-          MANIFEST_PATH: "dev/${{ env.DEPLOY_MANIFEST_PATH }}"
+          REPO_NAME: ${{ env.DEPLOY_REPO }}
+          MANIFEST_PATH: "dev/${{ env.DEPLOY_MANIFEST }}"
           EVENT_TYPE: "[DEV] Deploy Axum API"
           TOKEN: ${{ secrets.PAT_TOKEN }}
