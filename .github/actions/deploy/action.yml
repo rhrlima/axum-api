@@ -9,7 +9,7 @@ inputs:
   IMAGE_TAG:
     description: Image tag to be deployed
     required: false
-    default: ${{ vars.APP_VERSION }}
+    default: "latest"
   REPO_NAME:
     description: Name of the repo with the manifests
     required: true
