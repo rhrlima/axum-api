@@ -35,6 +35,15 @@ runs:
       RELEASE_LINK=$(curl https://api.github.com/repos/rhrlima/axum-api/releases/latest | jq -r '.html_url')
       echo "RELEASE_LINK=$(echo $RELEASE_LINK)" >> $GITHUB_ENV 
 
+  - name: Summary
+    shell: bash
+    run: |
+      echo "EVENT TYPE: ${{ inputs.EVENT_TYPE }}"
+      echo "IMAGE: ${{ inputs.IMAGE_NAME }}:${{ inputs.IMAGE_TAG }}"
+      echo "REPOSITORY: ${{ inputs.REPO_NAME }}"
+      echo "MANIFEST PATH: ${{ inputs.MANIFEST_PATH }}"
+      echo "LATEST RELEASE: ${{ env.RELEASE_LINK }}"
+
   - name: Repository Dispatch
     uses: peter-evans/repository-dispatch@v3
     with:
