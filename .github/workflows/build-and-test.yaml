@@ -33,3 +33,39 @@ jobs:
         # only MAIN branch
         if: github.ref == 'refs/heads/main'
         run: cargo test --release
+
+  create_tag:
+    name: Create Tag
+    runs-on: ubuntu-latest
+
+    # only MAIN branch
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get Version
+        run: echo "Using version ${{ vars.APP_VERSION }}"
+
+      - name: Create Tag
+        run: |
+          git tag ${{ vars.APP_VERSION }}
+          git push --tags
+
+  docker_build_and_publish:
+    name: Docker Build & Publish
+    runs-on: ubuntu-latest
+
+    # only MAIN branch
+    if: github.ref == 'refs/heads/main'
+
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - uses: rhrlima/axum-api/.github/actions/docker@main
+        with:
+          IMAGE_NAME: "${{ vars.IMAGE_NAME }}"
+          IMAGE_TAG: "${{ vars.APP_VERSION }}"

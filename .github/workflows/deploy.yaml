@@ -7,37 +7,29 @@ env:
   DEPLOY_MANIFEST_PATH: "axum-api/deployment.yaml"
 
 jobs:
-  create_tag:
-    name: Create Tag
+  publish_release_draft:
+    name: Publish Release Draft
     runs-on: ubuntu-latest
+
+    permissions:
+      # write permission is required to create a github release
+      contents: write
+      # write permission is required for autolabeler
+      # otherwise, read permission is required at least
+      pull-requests: read
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Get Version
-        run: echo "Using version ${{ vars.APP_VERSION }}"
-
-      - name: Create Tag
-        run: |
-          git tag ${{ vars.APP_VERSION }}
-          git push --tags
-
-  docker_build_and_publish:
-    name: Docker Build & Publish
-    needs: create_tag
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: write
-      packages: write
-
-    steps:
-      - uses: rhrlima/axum-api/.github/actions/docker@main
+      - uses: release-drafter/release-drafter@v6
         with:
-          IMAGE_NAME: "${{ vars.REGISTRY_DOMAIN }}/${{ vars.REGISTRY_NAME }}"
-          DOCKER_USERNAME: ${{ github.repository_owner }}
-          DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+          name: Release ${{ vars.APP_VERSION }}
+          tag: ${{ vars.APP_VERSION }}
+          publish: true
+          disable-autolabeler: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
 
   deploy_dev:
     name: Deploy Dev
@@ -52,33 +44,4 @@ jobs:
           REPO_NAME: ${{ env.DEPLOY_REPO_NAME }}
           MANIFEST_PATH: "dev/${{ env.DEPLOY_MANIFEST_PATH }}"
           EVENT_TYPE: "[DEV] Deploy Axum API"
-          TOKEN: ${{ secrets.ACTIONS_KEY }}
-
-  publish_release_draft:
-    name: Publish Release Draft
-    needs: docker_build_and_publish
-    runs-on: ubuntu-latest
-    permissions:
-      # write permission is required to create a github release
-      contents: write
-      # write permission is required for autolabeler
-      # otherwise, read permission is required at least
-      pull-requests: read
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Get Deploy Tag
-        run: |
-          git fetch --tags --depth=10
-          echo "DEPLOY_TAG=$(git tag -l --sort -v:refname | head -n1)" >> $GITHUB_ENV
-
-      - uses: release-drafter/release-drafter@v6
-        with:
-          name: Release ${{ env.DEPLOY_TAG }}
-          tag: ${{ env.DEPLOY_TAG }}
-          publish: true
-          disable-autolabeler: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+          TOKEN: ${{ secrets.PAT_TOKEN }}
