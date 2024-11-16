@@ -69,3 +69,4 @@ jobs:
         with:
           IMAGE_NAME: "${{ vars.IMAGE_NAME }}"
           IMAGE_TAG: "${{ vars.APP_VERSION }}"
+          DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }} # default token

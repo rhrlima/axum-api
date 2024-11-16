@@ -15,8 +15,7 @@ inputs:
     required: false
     default: ${{ github.repository_owner }}
   DOCKER_PASSWORD:
-    required: false
-    default: ${{ secrets.GITHUB_TOKEN }}
+    required: true
   DOCKERFILE_PATH:
     required: false
     default: Dockerfile
