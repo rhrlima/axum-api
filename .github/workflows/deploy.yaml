@@ -36,6 +36,7 @@ jobs:
       - name: Repository Dispatch
         uses: rhrlima/axum-api/.github/actions/deploy@main
         with:
+          IMAGE_TAG: ${{ vars.APP_VERSION }}
           REPO_NAME: ${{ env.DEPLOY_REPO }}
           MANIFEST_PATH: "dev/${{ env.DEPLOY_MANIFEST }}"
           EVENT_TYPE: "[DEV] Deploy Axum API"
