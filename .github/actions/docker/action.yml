@@ -42,8 +42,8 @@ runs:
       run: |
         IMAGE_PATH="${{ inputs.IMAGE_REGISTRY }}/${{ inputs.IMAGE_NAME }}"
 
-        docker tag docker_image:latest ${ IMAGE_PATH }:latest
-        docker tag docker_image:latest ${ IMAGE_PATH }:${{ inputs.IMAGE_TAG }}
+        docker tag docker_image:latest ${IMAGE_PATH}:latest
+        docker tag docker_image:latest ${IMAGE_PATH}:${{ inputs.IMAGE_TAG }}
 
-        docker push ${ IMAGE_PATH }:latest
-        docker push ${ IMAGE_PATH }:${{ inputs.IMAGE_TAG }}
+        docker push ${IMAGE_PATH}:latest
+        docker push ${IMAGE_PATH}:${{ inputs.IMAGE_TAG }}
