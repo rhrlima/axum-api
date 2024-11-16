@@ -9,6 +9,7 @@ inputs:
   IMAGE_TAG:
     description: Image tag to be deployed
     required: false
+    default: ${{ vars.APP_VERSION }}
   REPO_NAME:
     description: Name of the repo with the manifests
     required: true
@@ -28,13 +29,6 @@ runs:
   - name: Checkout repository
     uses: actions/checkout@v4
 
-  - name: Get Image Tag
-    if: ${{ inputs.IMAGE_TAG == '' }}
-    shell: bash
-    run: |
-      git fetch --tags --depth=10
-      echo "IMAGE_TAG=$(git tag -l --sort -v:refname | head -n1)" >> $GITHUB_ENV
-
   - name: Get Latest Release
     shell: bash
     run: |
@@ -50,7 +44,7 @@ runs:
       client-payload: |
         {
           "event_type": "${{ inputs.EVENT_TYPE }}",
-          "image_tag": "${{ inputs.IMAGE_TAG || env.IMAGE_TAG }}",
+          "image_tag": "${{ inputs.IMAGE_TAG }}",
           "image_name": "${{ inputs.IMAGE_NAME }}",
           "manifest_path": "${{ inputs.MANIFEST_PATH }}",
           "latest_release": "${{ env.RELEASE_LINK }}"
