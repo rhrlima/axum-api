@@ -12,6 +12,7 @@ on:
     types: [opened, synchronize, reopened]
 
 jobs:
+  # customized per repository
   build_and_test:
     name: Build & Test
     runs-on: ubuntu-latest
@@ -42,16 +43,10 @@ jobs:
     if: github.ref == 'refs/heads/main'
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Get Version
-        run: echo "Using version ${{ vars.APP_VERSION }}"
-
       - name: Create Tag
-        run: |
-          git tag ${{ vars.APP_VERSION }}
-          git push --tags
+        uses: rhrlima/ci-actions/actions/create-tag@main
+        with:
+          TAG: ${{ vars.APP_VERSION }}
 
   docker_build_and_publish:
     name: Docker Build & Publish
@@ -61,13 +56,8 @@ jobs:
     # only MAIN branch
     if: github.ref == 'refs/heads/main'
 
-    permissions:
-      contents: write
-      packages: write
-
     steps:
       - uses: rhrlima/axum-api/.github/actions/docker@main
         with:
-          IMAGE_NAME: "${{ vars.IMAGE_NAME }}"
           IMAGE_TAG: "${{ vars.APP_VERSION }}"
           DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }} # default token
