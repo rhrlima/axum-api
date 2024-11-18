@@ -57,7 +57,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
 
     steps:
-      - uses: rhrlima/axum-api/.github/actions/docker@main
+      - uses: rhrlima/ci-actions/actions/docker-build@main
         with:
           IMAGE_TAG: "${{ vars.APP_VERSION }}"
           DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }} # default token
