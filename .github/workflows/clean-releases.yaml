@@ -1,0 +1,9 @@
+name: Clean Releases
+
+on: [workflow_dispatch]
+
+jobs:
+  clean-releases:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: rhrlima/ci-actions/actions/clean-releases@main
