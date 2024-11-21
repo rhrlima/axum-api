@@ -7,3 +7,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: rhrlima/ci-actions/actions/clean-releases@main
+        with:
+          DOCKER_PASSWORD: ${{ secrets.PAT_TOKEN }}
