@@ -5,5 +5,11 @@
 
 Small repo for testing CI automation with Github Actions.
 
-- Feature 1
-- Feature 2
+## Examples
+
+```
+cargo run
+
+# new terminal
+curl http://localhost:8000
+```
